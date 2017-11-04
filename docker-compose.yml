@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
+    restart: unless-stopped
+
+  jenkins:
+    depends_on:
+      - nginx
+    image: jenkins/jenkins:lts
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+    environment:
+      - "JAVA_ARGS=-Xmx2048m -XX:MaxPermSize=1024m -Djenkins.branch.WorkspaceLocatorImpl.PATH_MAX=0 -Dhudson.model.DirectoryBrowserSupport.CSP=allow-same-origin allow-scripts; default-src 'self'; script-src * 'unsafe-eval'; img-src *; style-src * 'unsafe-inline'; font-src *"
